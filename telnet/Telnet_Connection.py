@@ -42,15 +42,47 @@ class Connection(object):
         '''
         Constructor
         '''
+        self.port = portNumber
+        self.host = hostName
         
         self.tn = telnetlib.Telnet(hostName)
-        self.tn.read_unil("Escape character is '^]'.")
+        self.reconnect()
         
     def disconnect(self):
         self.tn.close()
         
     def reconnect(self):
-        self.tn
+        self.tn = telnetlib.Telnet(host, port)
+        self.tn.read_unil("Escape character is '^]'.", 2)
         
-    def send(self, operation, data):
-        tn.
+    def send(self, operation, data = None):
+        '''
+        Writes operand and data to lunarbot
+        - returns false if:
+        --- operation is not defined
+        --- connection is closed
+        '''
+        
+        #Check if valid
+        if(not protocol_out.has_key(operation)):
+            print "Error: operation not valid"
+            return False
+        
+        try:
+            #write Opcode
+            self.tn.write(protocol_out[operation])
+            
+            #write data (if opt-code supports operands)
+            if(protocol_hasOperand[operation]):
+                self.tn.write(char(data))
+        except socket.error:
+            print "Error: telnet connection lost"
+            self.reconnect()
+            return False
+        
+        #operation successfully sent
+        return True
+            
+    def read(self):
+        pass
+        
