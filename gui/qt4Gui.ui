@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
-    <height>508</height>
+    <width>601</width>
+    <height>204</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -136,7 +136,7 @@ Speed</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>714</width>
+     <width>601</width>
      <height>21</height>
     </rect>
    </property>
@@ -162,5 +162,38 @@ Speed</string>
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>movLeftButton</sender>
+   <signal>clicked()</signal>
+   <receiver>motorSpeedSliderLeft</receiver>
+   <slot>addStep()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>22</x>
+     <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>movLeftButton</sender>
+   <signal>clicked()</signal>
+   <receiver>motorSpeedSliderRight</receiver>
+   <slot>subtractStep()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

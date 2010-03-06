@@ -1,5 +1,6 @@
 '''
-Created on Feb 27, 2010
+This class manages the connection and communication with the
+Lunarbot using a client Telnet
 
 @author: ching
 '''
@@ -40,7 +41,7 @@ class Connection(object):
 
     def __init__(self, hostName, portNumber):
         '''
-        Constructor
+        Connection creates a telnet connection with 'hostName:portNumber'
         '''
         self.port = portNumber
         self.host = hostName
@@ -65,7 +66,7 @@ class Connection(object):
         
         #Check if valid
         if(not protocol_out.has_key(operation)):
-            print "Error: operation not valid"
+            sys.stderr.write(">>>Protocol Error: operation not valid\n")
             return False
         
         try:
@@ -76,7 +77,7 @@ class Connection(object):
             if(protocol_hasOperand[operation]):
                 self.tn.write(char(data))
         except socket.error:
-            print "Error: telnet connection lost"
+            sys.stderr.write(">>>Connection Error: telnet connection lost\n")
             self.reconnect()
             return False
         
@@ -85,4 +86,3 @@ class Connection(object):
             
     def read(self):
         pass
-        
