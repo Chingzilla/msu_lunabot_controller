@@ -4,6 +4,8 @@ Lunarbot using a client Telnet
 
 @author: ching
 '''
+import telnetlib
+import sys
 
 protocol_out = { 'move_forward'   : 'e',
                  'move_backward'  : 'f',
@@ -31,7 +33,7 @@ protocol_hasOperand = [  'move_forward',
                          'belt_start',
                          'belt_stop'
                          ]
-import telnetlib
+
 
 class Connection(object):    
     '''
@@ -50,9 +52,15 @@ class Connection(object):
         self.reconnect()
         
     def disconnect(self):
+        '''
+        Disconnects the telnet connection
+        '''
         self.tn.close()
         
     def reconnect(self):
+        '''
+        Reconnects the telnet connection
+        '''
         self.tn = telnetlib.Telnet(host, port)
         self.tn.read_unil("Escape character is '^]'.", 2)
         
@@ -61,7 +69,8 @@ class Connection(object):
         Writes operand and data to lunarbot
         - returns false if:
         --- operation is not defined
-        --- connection is closed
+        --- operation needs data that is not given
+        --- connection is closed (and tries to reconnect)
         '''
         
         #Check if valid
@@ -69,6 +78,11 @@ class Connection(object):
             sys.stderr.write(">>>Protocol Error: operation not valid\n")
             return False
         
+        #Check if needs opcode needs operand
+        if(protocol_hasOperand[operation] and data == None):
+            sys.stderr.write(">>>Protocol Error: operation needs data")
+            return False
+
         try:
             #write Opcode
             self.tn.write(protocol_out[operation])
@@ -76,8 +90,10 @@ class Connection(object):
             #write data (if opt-code supports operands)
             if(protocol_hasOperand[operation]):
                 self.tn.write(char(data))
+                
         except socket.error:
-            sys.stderr.write(">>>Connection Error: telnet connection lost\n")
+            sys.stderr.q
+            sys.stderr.write(">>>Connection Error: telnet connection lost, reconnecting\n")
             self.reconnect()
             return False
         
@@ -85,4 +101,5 @@ class Connection(object):
         return True
             
     def read(self):
+        '''
         pass
