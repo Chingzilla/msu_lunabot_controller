@@ -44,11 +44,12 @@ class Connection(object):
     def __init__(self, hostName, portNumber):
         '''
         Connection creates a telnet connection with 'hostName:portNumber'
+        hostName = Computer's host name that is running Ser2Net
+        portNumber = Port number that Ser2Net is using for the Telnet connection 
         '''
         self.port = portNumber
         self.host = hostName
         
-        self.tn = telnetlib.Telnet(hostName)
         self.reconnect()
         
     def disconnect(self):
@@ -61,12 +62,13 @@ class Connection(object):
         '''
         Reconnects the telnet connection
         '''
-        self.tn = telnetlib.Telnet(host, port)
-        self.tn.read_unil("Escape character is '^]'.", 2)
+        self.tn = telnetlib.Telnet(self.host, self.port)
         
     def send(self, operation, data = None):
         '''
         Writes operand and data to lunarbot
+        operation = opcode in readable from
+        data = operand, values from 0 - 256
         - returns false if:
         --- operation is not defined
         --- operation needs data that is not given
@@ -75,31 +77,65 @@ class Connection(object):
         
         #Check if valid
         if(not protocol_out.has_key(operation)):
-            sys.stderr.write(">>>Protocol Error: operation not valid\n")
+            sys.stderr.write(">>> Protocol Error: operation not valid\n")
             return False
         
         #Check if needs opcode needs operand
-        if(protocol_hasOperand[operation] and data == None):
-            sys.stderr.write(">>>Protocol Error: operation needs data")
+        if(operation in protocol_hasOperand and data == None):
+            sys.stderr.write(">>> Protocol Error: operation needs data\n")
             return False
 
         try:
             #write Opcode
             self.tn.write(protocol_out[operation])
             
-            #write data (if opt-code supports operands)
-            if(protocol_hasOperand[operation]):
-                self.tn.write(char(data))
+            #shifts then writes data (if opt-code supports operands)
+            if(operation in protocol_hasOperand):
+                self.tn.write(chr(data))
                 
-        except socket.error:
-            sys.stderr.q
-            sys.stderr.write(">>>Connection Error: telnet connection lost, reconnecting\n")
-            self.reconnect()
+        except ValueError:
+#            sys.stderr.write(">>> Connection Error: telnet connection lost, reconnecting\n")
+#            self.reconnect()
+#            return False           
+            sys.stderr.write(">>> Operand Error: value is out of range\n")
+            
+            #reset connection
+            self.tn.write(protocol_out['serial_sync'])
+            
             return False
         
         #operation successfully sent
         return True
             
-    def read(self):
+    def getData(self):
+        '''
+        Read returns the next data set from the Lunarbot, returns None if nothing is on
+        the bus, or if a communications are incomplete
         '''
         pass
+    
+class main():
+    '''
+    Simple cli for telnet connection
+    '''
+    
+    host = 'ts7200'
+    host_port = 2001
+  
+    tc = Connection(host,host_port)
+    
+    for i in protocol_out:
+        sys.stdout.write(i + "\n")
+    sys.stdout.write('***********\n')
+        
+    while(True):
+        sys.stdout.write("What do you want to do?\n")
+        
+        command = sys.stdin.readline().rstrip().split(' ')
+        
+        if(len(command) == 2):
+            tc.send(command[0], int(command[1]))
+        elif(len(command) == 1):
+            tc.send(command[0])
+        else:
+            sys.stderr.write(">>> Command Error: out of bounds\n")
