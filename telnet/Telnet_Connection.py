@@ -50,7 +50,7 @@ class Connection(object):
         self.port = portNumber
         self.host = hostName
         
-        self.reconnect()
+        self.connect()
         
     def disconnect(self):
         '''
@@ -58,7 +58,7 @@ class Connection(object):
         '''
         self.tn.close()
         
-    def reconnect(self):
+    def connect(self):
         '''
         Reconnects the telnet connection
         '''
