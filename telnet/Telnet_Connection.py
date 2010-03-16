@@ -119,7 +119,7 @@ class main():
     Simple cli for telnet connection
     '''
     
-    host = 'ts7200'
+    host = 'localhost'
     host_port = 2001
   
     tc = Connection(host,host_port)
