@@ -87,18 +87,16 @@ class Ui_Movement(QtGui.QWidget):
     def incLeftTurn(self):
         ''' Increase the speed to turn left '''
         diff = self.rightMotorSlider.value() + self.leftMotorSlider.value() 
-        if(self.rightMotorSlider.value() > 0 or
-           not diff == 0):
+        if(not diff == 0):
             self.stopMotors()
-        
+            
         self.leftMotorSlider.triggerAction(1)
         self.rightMotorSlider.triggerAction(2)    
             
     def incRightTurn(self):
         ''' Increase the speed to turn right '''
         diff = self.rightMotorSlider.value() + self.leftMotorSlider.value() 
-        if(self.leftMotorSlider.value() > 0 or
-           not diff == 0):
+        if(not diff == 0):
             self.stopMotors()
             
         self.leftMotorSlider.triggerAction(2)
