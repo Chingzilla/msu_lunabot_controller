@@ -1,27 +1,34 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file '../../gui/movementWidget.ui'
-#
-# Created: Mon Mar 15 21:13:00 2010
-#      by: PyQt4 UI code generator 4.7
-#
-# WARNING! All changes made in this file will be lost!
-
+import sys
 from PyQt4 import QtCore, QtGui
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        self.verticalLayoutWidget = QtGui.QWidget(Form)
+class Ui_Movement(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        
+        self.setGeometry(300,300,250,150)
+        self.setWindowTitle("Lunar Movement Widget")
+        
+        self.setLayout()
+        
+    def setLayout(self):
+#        Form.setObjectName("Form")
+#        
+#        self.verticalLayoutWidget = QtGui.QWidget(Form)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 241, 221))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName("verticalLayout")
+        
         self.motorSpeedLayout = QtGui.QHBoxLayout()
         self.motorSpeedLayout.setObjectName("motorSpeedLayout")
         self.motorSpeedLabel = QtGui.QLabel(self.verticalLayoutWidget)
         self.motorSpeedLabel.setObjectName("motorSpeedLabel")
         self.motorSpeedLayout.addWidget(self.motorSpeedLabel)
+        
         self.leftMotorSlider = QtGui.QSlider(self.verticalLayoutWidget)
         self.leftMotorSlider.setMinimum(-256)
         self.leftMotorSlider.setMaximum(256)
@@ -32,6 +39,7 @@ class Ui_Form(object):
         self.leftMotorSlider.setTickInterval(64)
         self.leftMotorSlider.setObjectName("leftMotorSlider")
         self.motorSpeedLayout.addWidget(self.leftMotorSlider)
+        
         self.rightMotorSlider = QtGui.QSlider(self.verticalLayoutWidget)
         self.rightMotorSlider.setMinimum(-256)
         self.rightMotorSlider.setMaximum(256)
@@ -42,8 +50,10 @@ class Ui_Form(object):
         self.rightMotorSlider.setTickInterval(64)
         self.rightMotorSlider.setObjectName("rightMotorSlider")
         self.motorSpeedLayout.addWidget(self.rightMotorSlider)
+        
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.motorSpeedLayout.addItem(spacerItem)
+        
         self.verticalLayout.addLayout(self.motorSpeedLayout)
         self.dpadLayout = QtGui.QGridLayout()
         self.dpadLayout.setObjectName("dpadLayout")
@@ -64,16 +74,10 @@ class Ui_Form(object):
         self.dpadLayout.addWidget(self.rightButton, 1, 2, 1, 1)
         self.verticalLayout.addLayout(self.dpadLayout)
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+#        self.retranslateUi(Form)
+#        QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QtGui.QApplication.translate("Form", "Form", None, QtGui.QApplication.UnicodeUTF8))
-        self.motorSpeedLabel.setText(QtGui.QApplication.translate("Form", "Motor\n"
-"Speed", None, QtGui.QApplication.UnicodeUTF8))
-        self.stopButton.setText(QtGui.QApplication.translate("Form", "Stop", None, QtGui.QApplication.UnicodeUTF8))
-        self.forwardButton.setText(QtGui.QApplication.translate("Form", "Forward", None, QtGui.QApplication.UnicodeUTF8))
-        self.backwardButton.setText(QtGui.QApplication.translate("Form", "Backward", None, QtGui.QApplication.UnicodeUTF8))
-        self.leftButton.setText(QtGui.QApplication.translate("Form", "Left", None, QtGui.QApplication.UnicodeUTF8))
-        self.rightButton.setText(QtGui.QApplication.translate("Form", "Right", None, QtGui.QApplication.UnicodeUTF8))
-
+app = QtGui.QApplication(sys.argv)
+moveUi = Ui_Movement()
+moveUi.show()
+app.exec_()
