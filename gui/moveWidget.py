@@ -9,15 +9,16 @@ class Ui_Movement(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         
-        self.setGeometry(300,300,250,150)
+        self.setGeometry(0, 0, 241, 221)
         self.setWindowTitle("Lunar Movement Widget")
         
         self.setLayout()
         
+        
     def setLayout(self):
 #        Form.setObjectName("Form")
 #        
-#        self.verticalLayoutWidget = QtGui.QWidget(Form)
+        self.verticalLayoutWidget = QtGui.QWidget(self)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 241, 221))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.verticalLayoutWidget)
@@ -73,9 +74,6 @@ class Ui_Movement(QtGui.QWidget):
         self.rightButton.setObjectName("rightButton")
         self.dpadLayout.addWidget(self.rightButton, 1, 2, 1, 1)
         self.verticalLayout.addLayout(self.dpadLayout)
-
-#        self.retranslateUi(Form)
-#        QtCore.QMetaObject.connectSlotsByName(Form)
 
 app = QtGui.QApplication(sys.argv)
 moveUi = Ui_Movement()
