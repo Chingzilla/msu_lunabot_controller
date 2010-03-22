@@ -35,7 +35,7 @@ protocol_hasOperand = [  'move_forward',
                          ]
 
 
-class Connection(object):    
+class _Connection(object):    
     '''
     This class is used to control the connection to
     the embedded board
