@@ -123,6 +123,30 @@ class Ui_Movement(QtGui.QWidget):
     def incLeftMotorSpeed(self):
         print self.leftMotorSlider.value()
         self.leftMotorSlider.sl
+        
+    def keyPressEvent(self, event):
+        if type(event) == QtGui.QKeyEvent:
+            # Move Forward (.)
+            if event.key() == 46:
+                self.incForward()
+            # Move Backward (e)
+            elif event.key() == 69:
+                self.incBackward()
+            # Move Left (o)
+            elif event.key() == 79:
+                self.incLeftTurn()
+            # Move Right (u)
+            elif event.key() == 85:
+                self.incRightTurn()
+            # Stop (a)
+            elif event.key() == 65:
+                self.stopMotors()
+            else:
+                event.ignore()
+                return
+            event.accept()
+        else:
+            event.ignore()
          
 app = QtGui.QApplication(sys.argv)
 moveUi = Ui_Movement()
