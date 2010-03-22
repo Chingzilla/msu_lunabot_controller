@@ -33,6 +33,7 @@ class Ui_Movement(QtGui.QWidget):
         self.leftMotorSlider.setOrientation(QtCore.Qt.Vertical)
         self.leftMotorSlider.setTickPosition(QtGui.QSlider.TicksAbove)
         self.leftMotorSlider.setTickInterval(64)
+        self.leftMotorSlider.setTracking(True)
         self.leftMotorSlider.setObjectName("leftMotorSlider")
         motorSpeedLayout.addWidget(self.leftMotorSlider)
         
@@ -44,6 +45,7 @@ class Ui_Movement(QtGui.QWidget):
         self.rightMotorSlider.setOrientation(QtCore.Qt.Vertical)
         self.rightMotorSlider.setTickPosition(QtGui.QSlider.TicksAbove)
         self.rightMotorSlider.setTickInterval(64)
+        self.rightMotorSlider.setTracking(True)
         self.rightMotorSlider.setObjectName("rightMotorSlider")
         motorSpeedLayout.addWidget(self.rightMotorSlider)
         
@@ -78,6 +80,14 @@ class Ui_Movement(QtGui.QWidget):
         self.connect(leftButton, QtCore.SIGNAL('clicked()'), self.incLeftTurn)
         self.connect(forwardButton, QtCore.SIGNAL('clicked()'), self.incForward)
         self.connect(backwardButton, QtCore.SIGNAL('clicked()'), self.incBackward)
+        
+        # Emit Slider Value Change
+        self.connect(self.leftMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+        self.connect(self.rightMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+
+    def motorSpeedChange(self):
+        print self.leftMotorSlider.value(), "\t", self.rightMotorSlider.value()
+        self.emit('motorSpeedChanged()')
 
     def stopMotors(self):
         ''' Move the motor speed sliders to zero '''
@@ -90,8 +100,8 @@ class Ui_Movement(QtGui.QWidget):
         if(not diff == 0):
             self.stopMotors()
             
-        self.leftMotorSlider.triggerAction(1)
-        self.rightMotorSlider.triggerAction(2)    
+        self.leftMotorSlider.triggerAction(2)
+        self.rightMotorSlider.triggerAction(1)    
             
     def incRightTurn(self):
         ''' Increase the speed to turn right '''
@@ -99,8 +109,8 @@ class Ui_Movement(QtGui.QWidget):
         if(not diff == 0):
             self.stopMotors()
             
-        self.leftMotorSlider.triggerAction(2)
-        self.rightMotorSlider.triggerAction(1)  
+        self.leftMotorSlider.triggerAction(1)
+        self.rightMotorSlider.triggerAction(2)  
        
     def incForward(self):
         ''' Increase the speed forward '''
