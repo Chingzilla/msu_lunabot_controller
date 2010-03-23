@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from Telnet_Connection import Connection
 
 import sys
 from PyQt4 import QtCore, QtGui
@@ -6,6 +7,8 @@ from PyQt4 import QtCore, QtGui
 class Ui_Movement(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        
+        self.tc = Connection('localhost', 2001)
         
         self.sliderStep = 16
         self.sliderPage = 32
@@ -86,6 +89,16 @@ class Ui_Movement(QtGui.QWidget):
         self.connect(self.rightMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
 
     def motorSpeedChange(self):
+        
+        if self.rightMotorSlider.value() < 0:
+            self.tc.send('right_backward', abs(self.rightMotorSlider.value()))
+        else:
+            self.tc.send('right_forward', self.rightMotorSlider.value())
+        if self.leftMotorSlider.value() < 0:  
+            self.tc.send('left_backward', abs(self.leftMotorSlider.vaule()))
+        else:
+            self.tc.send('left_forward', self.leftMotorSlider.value())                                   
+        
         print self.leftMotorSlider.value(), "\t", self.rightMotorSlider.value()
         self.emit(QtCore.SIGNAL('motorSpeedChanged()'))
 
