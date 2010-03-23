@@ -35,7 +35,7 @@ protocol_hasOperand = [  'move_forward',
                          ]
 
 
-class _Connection(object):    
+class Connection(object):    
     '''
     This class is used to control the connection to
     the embedded board
@@ -119,7 +119,7 @@ class main():
     Simple cli for telnet connection
     '''
     
-    host = 'localhost'
+    host = '192.168.0.49'
     host_port = 2001
   
     tc = Connection(host,host_port)

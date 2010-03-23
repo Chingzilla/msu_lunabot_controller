@@ -87,7 +87,7 @@ class Ui_Movement(QtGui.QWidget):
 
     def motorSpeedChange(self):
         print self.leftMotorSlider.value(), "\t", self.rightMotorSlider.value()
-        self.emit('motorSpeedChanged()')
+        self.emit(QtCore.SIGNAL('motorSpeedChanged()'))
 
     def stopMotors(self):
         ''' Move the motor speed sliders to zero '''
