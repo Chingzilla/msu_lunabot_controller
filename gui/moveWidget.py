@@ -9,7 +9,7 @@ class Ui_Movement(QtGui.QWidget):
         
         QtGui.QWidget.__init__(self, parent)
         
-        self.tc = Connection('localhost', 2001)
+        self.tc = Connection('192.168.0.49', 2001)
         
         self.sliderStep = 16
         self.sliderPage = 32
@@ -86,7 +86,7 @@ class Ui_Movement(QtGui.QWidget):
         self.connect(backwardButton, QtCore.SIGNAL('clicked()'), self.incBackward)
         
         # Emit Slider Value Change
-        self.connect(self.leftMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+#        self.connect(self.leftMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         self.connect(self.rightMotorSlider, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
 
     def motorSpeedChange(self):
@@ -95,18 +95,19 @@ class Ui_Movement(QtGui.QWidget):
             self.tc.send('right_backward', abs(self.rightMotorSlider.value()))
         else:
             self.tc.send('right_forward', self.rightMotorSlider.value())
-#        if self.leftMotorSlider.value() < 0:  
-#            self.tc.send('left_backward', abs(self.leftMotorSlider.vaule()))
-#        else:
-#            self.tc.send('left_forward', self.leftMotorSlider.value())                                   
+
+        if self.leftMotorSlider.value() < 0:  
+            self.tc.send('left_backward', abs(self.leftMotorSlider.value()))
+        else:
+            self.tc.send('left_forward', self.leftMotorSlider.value())                                   
         
         print self.leftMotorSlider.value(), "\t", self.rightMotorSlider.value()
         self.emit(QtCore.SIGNAL('motorSpeedChanged()'))
 
     def stopMotors(self):
         ''' Move the motor speed sliders to zero '''
-        self.rightMotorSlider.setValue(0)
         self.leftMotorSlider.setValue(0)
+        self.rightMotorSlider.setValue(0)
         
     def incLeftTurn(self):
         ''' Increase the speed to turn left '''

@@ -97,9 +97,9 @@ class Connection(object):
                 self.tn.write(chr(data))
                 
         except ValueError:
-#            sys.stderr.write(">>> Connection Error: telnet connection lost, reconnecting\n")
-#            self.reconnect()
-#            return False           
+            sys.stderr.write(">>> Connection Error: telnet connection lost, reconnecting\n")
+            self.reconnect()
+            return False           
             sys.stderr.write(">>> Operand Error: value is out of range\n")
             
             #reset connection
@@ -116,29 +116,3 @@ class Connection(object):
         the bus, or if a communications are incomplete
         '''
         pass
-    
-#class main():
-#    '''
-#    Simple cli for telnet connection
-#    '''
-#    
-#    host = 'localhost'
-#    host_port = 2001
-#  
-#    tc = Connection(host,host_port)
-#    
-#    for i in protocol_out:
-#        sys.stdout.write(i + "\n")
-#    sys.stdout.write('***********\n')
-#        
-#    while(True):
-#        sys.stdout.write("What do you want to do?\n")
-#        
-#        command = sys.stdin.readline().rstrip().split(' ')
-#        
-#        if(len(command) == 2):
-#            tc.send(command[0], int(command[1]))
-#        elif(len(command) == 1):
-#            tc.send(command[0])
-#        else:
-#            sys.stderr.write(">>> Command Error: out of bounds\n")
