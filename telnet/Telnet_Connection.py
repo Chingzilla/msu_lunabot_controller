@@ -4,8 +4,11 @@ Lunarbot using a client Telnet
 
 @author: ching
 '''
+from sqlite3.dbapi2 import Time
 import telnetlib
 import sys
+import time
+import threading
 
 protocol_out = { 'move_forward'   : 'e',
                  'move_backward'  : 'f',
@@ -17,7 +20,7 @@ protocol_out = { 'move_forward'   : 'e',
                  'bucket_lower'   : 'h',
                  'belt_start'     : 'm',
                  'belt_stop'      : 't',
-                 'fullstop'       : 'l',
+                 'full_stop'      : 'l',
                  'stop_wheels'    : 'k',
                  'serial_sync'    : '!'
                  }
@@ -50,6 +53,9 @@ class Connection(object):
         self.port = portNumber
         self.host = hostName
         
+        self.keep_alive_thread = threading.Thread(target=self.keepAlive)
+        self.keep_alive_thread.setDaemon(1)
+        
         self.connect()
         
     def disconnect(self):
@@ -66,6 +72,21 @@ class Connection(object):
         print 'connecting to telnet: ', self.host
         self.tn = telnetlib.Telnet(self.host, self.port)
         print 'connected'
+        
+        self.keep_alive_thread.start()
+    
+    def keepAlive(self):
+        '''
+        Sends the no-op command every second to ensure 
+        the connection is still there and prevent the
+        FPGA board from timeing out
+        '''
+        try:
+            while(True):
+                self.send("serial_sync")
+                time.sleep(1)
+        except:
+            raise          
         
     def send(self, operation, data = None):
         '''
@@ -98,7 +119,7 @@ class Connection(object):
                 
         except ValueError:
             sys.stderr.write(">>> Connection Error: telnet connection lost, reconnecting\n")
-            self.reconnect()
+            self.connect()
             return False           
             sys.stderr.write(">>> Operand Error: value is out of range\n")
             
@@ -108,6 +129,7 @@ class Connection(object):
             return False
         
         #operation successfully sent
+        time.sleep(.01)
         return True
             
     def getData(self):
