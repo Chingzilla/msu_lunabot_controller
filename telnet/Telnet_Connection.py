@@ -33,8 +33,9 @@ protocol_hasOperand = [  'move_forward',
                          'left_backward',
                          'right_forward',
                          'right_backward',
-                         'belt_start',
-                         'belt_stop'
+                         'bucket_raise',
+                         'bucket_lower', 
+                         'belt_start'
                          ]
 
 
