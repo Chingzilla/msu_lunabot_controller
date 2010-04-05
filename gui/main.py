@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Created on Apr 4, 2010
 
@@ -6,14 +5,31 @@ Created on Apr 4, 2010
 '''
 from PyQt4 import QtGui, QtCore
 from main_ui import Ui_MainWindow
+from Telnet_Connection import Connection
+import pygame
 import sys
+import threading
+import time
 
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self,parent)  
         self.setupUi(self)
         
-        ### Connect Movement ###
+        ### Setup Telnet
+        self.tc = Connection('localhost',2002)
+        
+        ### Setup Joystick
+        print 'setup joystick'
+        pygame.init()
+        self.joy0 = pygame.joystick.Joystick(0)
+        self.joy0.init()
+        
+        self.joystickThread = threading.Thread(target = self.joyUpdate)
+        self.joystickThread.setDaemon(1)
+        self.joystickThread.start()
+        
+        ### Connect Movement
         # Connect Stop button
         self.connect(self.button_move_stop, QtCore.SIGNAL('clicked()'), self.stopMotors)
         
@@ -112,6 +128,37 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             event.accept()
         else:
             event.ignore()
+    def joyUpdate(self):
+        try:
+            while(True):
+                left = self.joyScale(1,self.slider_speed_left.value())
+                right = self.joyScale(4,self.slider_speed_right.value())
+                if left != 266:
+                    self.slider_speed_left.setValue(left)
+                if right != 266:
+                    self.slider_speed_right.setValue(right)
+                pygame.event.clear()
+                pygame.event.pump()
+                time.sleep(.1)
+        except:
+            raise
+    def joyScale(self,axis,old):
+        value = self.joy0.get_axis(axis)
+        if abs(value) < .20:
+            value = 0
+            if old == 0:
+                return 266                    
+        elif value > 0:
+            value -= .10
+        else:
+            value += .10
+        value = (value * -255) // 1
+        
+        if (value > old - 5) and (value < old + 5):
+            return 266
+        else:
+            return value
+        
 app = QtGui.QApplication(sys.argv)
 
 mw = MainWindow()
