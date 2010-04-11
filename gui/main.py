@@ -17,17 +17,20 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
         ### Setup Telnet
-        self.tc = Connection('localhost',2002)
+        #self.tc = Connection('localhost',2002)
         
         ### Setup Joystick
-        print 'setup joystick'
-        pygame.init()
-        self.joy0 = pygame.joystick.Joystick(0)
-        self.joy0.init()
-        
         self.joystickThread = threading.Thread(target = self.joyUpdate)
         self.joystickThread.setDaemon(1)
-        self.joystickThread.start()
+        
+        pygame.init()
+        self.joystick_en = False
+        
+        if pygame.joystick.get_count() > 0:
+            self.joy0 = pygame.joystick.Joystick(0)
+            self.joy0.init()
+            self.joystick_en = True
+            self.joystickThread.start()
         
         ### Connect Movement
         # Connect Stop button
@@ -130,7 +133,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             event.ignore()
     def joyUpdate(self):
         try:
-            while(True):
+            while(self.joystick_en):
                 left = self.joyScale(1,self.slider_speed_left.value())
                 right = self.joyScale(4,self.slider_speed_right.value())
                 if left != 266:
