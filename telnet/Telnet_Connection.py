@@ -38,6 +38,29 @@ protocol_hasOperand = [  'move_forward',
                          'belt_start'
                          ]
 
+class Connection_Key():
+    '''
+    Stories the connection settings
+    '''
+    def __init__(self):
+        pass
+    
+    def __call__(self, host, port):
+        self.host = host
+        self.port = port
+        
+
+class Connection_Interface(object):
+    '''
+    Standard interface to for communicating with with the
+    Lunar robot.
+    - Implements Multiton
+    '''
+    
+    def __init__(self):
+        self.instances = {}
+        
+    def
 
 class Connection(object):    
     '''
