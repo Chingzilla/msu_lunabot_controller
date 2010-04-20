@@ -22,6 +22,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
         self.joystickThread.setDaemon(1)
+        self.joystickThread.start()
         
         pygame.init()
         self.joystick_en = False
@@ -30,7 +31,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.joy0 = pygame.joystick.Joystick(0)
             self.joy0.init()
             self.joystick_en = True
-            self.joystickThread.start()
         
         ### Connect Movement
         # Connect Stop button
@@ -46,11 +46,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         self.connect(self.slider_speed_right, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         
+        ### Connect Joystick
+        self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
     
     def motorSpeedChange(self):
       
-	self.lcd_speed_right.display(self.slider_speed_right.value())
-	self.lcd_speed_left.display(self.slider_speed_left.value())
+        self.lcd_speed_right.display(self.slider_speed_right.value())
+        self.lcd_speed_left.display(self.slider_speed_left.value())
         
         if self.slider_speed_right.value() < 0:
             self.tc.send('right_backward', abs(self.slider_speed_right.value()))
@@ -105,6 +107,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.slider_speed_right.triggerAction(2)  
             
     def incLeftMotorSpeed(self):
+        ''' Increase the left motor speed '''
         print self.slider_speed_left.value()
         self.slider_speed_left.sl
         
@@ -132,35 +135,60 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
     def joyUpdate(self):
-        try:
-            while(self.joystick_en):
-                left = self.joyScale(1,self.slider_speed_left.value())
-                right = self.joyScale(4,self.slider_speed_right.value())
-                if left != 266:
-                    self.slider_speed_left.setValue(left)
-                if right != 266:
-                    self.slider_speed_right.setValue(right)
-                pygame.event.clear()
-                pygame.event.pump()
-                time.sleep(.1)
-        except:
-            raise
-    def joyScale(self,axis,old):
-        value = self.joy0.get_axis(axis)
+        temp_left = 0
+        temp_right = 0
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.JOYAXISMOTION:
+                    value = self.joyScale(event.value)
+                    if event.axis == 1 and temp_left != value:
+                        temp_left = value
+                        self.slider_speed_left.setValue(value)
+                    elif event.axis == 3 and temp_right != value:
+                        temp_right = value
+                        self.slider_speed_right.setValue(value)
+            pygame.time.get_ticks(60)
+                                            
+    def joyScale(self,value):
         if abs(value) < .20:
-            value = 0
-            if old == 0:
-                return 266                    
-        elif value > 0:
-            value -= .10
+            value = 0                    
         else:
-            value += .10
-        value = (value * -255) // 1
+            value = int(value * 255)
+        return value
+    
+    def toggleJoystickState(self):
+        ''' call to enable or disable the joystick '''
+        if not self.joystick_en and pygame.joystick.get_count():
+            self.joystick_en = False
+        else:
+            self.joystick_en = True
+            self.joystickThread.start()
+            
+        self.check_joystick_enable.setChecked(self.joystick_en)
         
-        if (value > old - 5) and (value < old + 5):
-            return 266
-        else:
-            return value
+    def belt_start(self):
+        ''' call to start the belt at the set speed '''
+        pass
+    
+    def belt_stop(self):
+        '''  call to stop the belt '''
+        pass
+    
+    def belt_setspeed(self):
+        ''' call when the belt speed has changed '''
+        
+    def bucket_lower(self):
+        ''' call to lower the bucket '''
+        pass
+        
+    def bucket_raise(self):
+        ''' call to raise the bucket '''
+        pass
+    
+    def bucket_stop(self):
+        ''' call if the bucket needs to be stopped '''
+        pass
+        
         
 app = QtGui.QApplication(sys.argv)
 
