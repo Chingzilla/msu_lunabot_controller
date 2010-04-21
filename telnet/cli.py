@@ -8,7 +8,7 @@ if __name__ == '__main__':
     pass
 
 import sys
-from Telnet_Connection import Connection,protocol_out
+from Telnet_Connection import Connection_Manager, protocol_out
 
 class main():
     '''
@@ -16,9 +16,9 @@ class main():
     '''
     
     host = 'localhost'
-    host_port = 2002
+    host_port = 2001
   
-    tc = Connection(host,host_port)
+    tc = Connection_Manager.getInstance(host,host_port)
     
     for i in protocol_out:
         sys.stdout.write(i + "\n")

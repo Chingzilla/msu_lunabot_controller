@@ -38,7 +38,7 @@ protocol_hasOperand = [  'move_forward',
                          ]
 
 
-class Connection_Interface(object):
+class _Connection_Manager(object):
     '''
     Standard interface to for communicating with with the
     Lunar robot.
@@ -52,8 +52,9 @@ class Connection_Interface(object):
         key = host + str(port)
         try:
             return self.instances[key]
-        except keyError:
+        except KeyError:
             self.instances[key] = _Connection(host,port)
+            return self.instances[key]
 
 class _Connection(object):    
     '''
@@ -80,14 +81,21 @@ class _Connection(object):
         '''
         Disconnects the telnet connection
         '''
-        print 'disconnect'
-        self.alive = False
-        self.tn.close()
+        if self.alive:
+            print 'disconnecting'
+            self.alive = False
+            self.tn.close()
+            self.keep_alive_thread.join()
+            print 'disconnected'
         
     def connect(self):
         '''
         Connects the telnet connection
         '''
+        if self.alive:
+            print 'already connected'
+            return
+        
         print 'connecting to telnet: ', self._host
         self.alive = True
         self.tn = telnetlib.Telnet(self._host, self._port)
@@ -101,12 +109,9 @@ class _Connection(object):
         the connection is still there and prevent the
         FPGA board from timeing out
         '''
-        try:
-            while(self.alive):
-                self.send("serial_sync")
-                time.sleep(1)
-        except:
-            raise          
+        while self.alive:
+            self.send("serial_sync")
+            time.sleep(1)
         
     def send(self, operation, data = None):
         '''
@@ -129,6 +134,7 @@ class _Connection(object):
             sys.stderr.write(">>> Protocol Error: operation needs data\n")
             return False
 
+        Lock.acquire()
         try:
             #write Opcode
             self.tn.write(protocol_out[operation])
@@ -147,6 +153,7 @@ class _Connection(object):
             self.tn.write(protocol_out['serial_sync'])
             
             return False
+        Lock.release()
         
         #operation successfully sent
         time.sleep(.01)
@@ -158,3 +165,5 @@ class _Connection(object):
         the bus, or if a communications are incomplete
         '''
         pass
+    
+Connection_Manager = _Connection_Manager()
