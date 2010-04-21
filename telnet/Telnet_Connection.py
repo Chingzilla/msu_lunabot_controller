@@ -4,7 +4,6 @@ Lunarbot using a client Telnet
 
 @author: ching
 '''
-from sqlite3.dbapi2 import Time
 import telnetlib
 import sys
 import time
@@ -38,17 +37,6 @@ protocol_hasOperand = [  'move_forward',
                          'belt_start'
                          ]
 
-class Connection_Key():
-    '''
-    Stories the connection settings
-    '''
-    def __init__(self):
-        pass
-    
-    def __call__(self, host, port):
-        self.host = host
-        self.port = port
-        
 
 class Connection_Interface(object):
     '''
@@ -60,9 +48,14 @@ class Connection_Interface(object):
     def __init__(self):
         self.instances = {}
         
-    def
+    def getInstance(self,host,port):
+        key = host + str(port)
+        try:
+            return self.instances[key]
+        except keyError:
+            self.instances[key] = _Connection(host,port)
 
-class Connection(object):    
+class _Connection(object):    
     '''
     This class is used to control the connection to
     the embedded board
@@ -74,9 +67,10 @@ class Connection(object):
         hostName = Computer's host name that is running Ser2Net
         portNumber = Port number that Ser2Net is using for the Telnet connection 
         '''
-        self.port = portNumber
-        self.host = hostName
+        self._port = portNumber
+        self._host = hostName
         
+        self.alive = False
         self.keep_alive_thread = threading.Thread(target=self.keepAlive)
         self.keep_alive_thread.setDaemon(1)
         
@@ -87,14 +81,16 @@ class Connection(object):
         Disconnects the telnet connection
         '''
         print 'disconnect'
+        self.alive = False
         self.tn.close()
         
     def connect(self):
         '''
-        Reconnects the telnet connection
+        Connects the telnet connection
         '''
-        print 'connecting to telnet: ', self.host
-        self.tn = telnetlib.Telnet(self.host, self.port)
+        print 'connecting to telnet: ', self._host
+        self.alive = True
+        self.tn = telnetlib.Telnet(self._host, self._port)
         print 'connected'
         
         self.keep_alive_thread.start()
@@ -106,7 +102,7 @@ class Connection(object):
         FPGA board from timeing out
         '''
         try:
-            while(True):
+            while(self.alive):
                 self.send("serial_sync")
                 time.sleep(1)
         except:
