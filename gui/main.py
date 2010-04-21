@@ -5,19 +5,20 @@ Created on Apr 4, 2010
 '''
 from PyQt4 import QtGui, QtCore
 from main_ui import Ui_MainWindow
-from Telnet_Connection import Connection
+from Telnet_Connection import Connection_Manager
 import pygame
 import sys
 import threading
-import time
 
 class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self,parent)  
         self.setupUi(self)
         
+        self.belt_en = False
+        
         ### Setup Telnet
-        #self.tc = Connection('localhost',2002)
+        self.tc = Connection_Manager.getInstance('digital-watch',2001)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
@@ -45,6 +46,20 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         # Emit Slider Value Change
         self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         self.connect(self.slider_speed_right, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+        
+        # Connect Belt UI
+        self.connect(self.slider_belt_speed, QtCore.SIGNAL('valueChanged(int)'), self.belt_setspeed)
+        
+        self.connect(self.button_belt_start, QtCore.SIGNAL('clicked()'), self.belt_start)
+        self.connect(self.button_belt_stop, QtCore.SIGNAL('clicked()'), self.belt_stop)
+        
+        # Connect Bucket UI
+        self.connect(self.button_bucket_up, QtCore.SIGNAL('clicked()'), self.bucket_raise)
+        self.connect(self.button_bucket_down, QtCore.SIGNAL('clicked()'), self.bucket_lower)
+        self.connect(self.button_bucket_stop, QtCore.SIGNAL('clicked()'), self.bucket_stop)
+        
+        # Connect the Panic Button
+        self.connect(self.button_panic, QtCore.SIGNAL('clicked()'), self.panic)
         
         ### Connect Joystick
         self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
@@ -112,6 +127,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.slider_speed_left.sl
         
     def keyPressEvent(self, event):
+        ''' keyboard short cuts are handled here '''
         if type(event) == QtGui.QKeyEvent:
             # Move Forward (.)
             if event.key() == 46:
@@ -135,9 +151,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             event.ignore()
     def joyUpdate(self):
+        ''' scan's the gamepad for movements '''
         temp_left = 0
         temp_right = 0
-        while True:
+        while self.joystick_en:
             for event in pygame.event.get():
                 if event.type == pygame.JOYAXISMOTION:
                     value = self.joyScale(event.value)
@@ -168,26 +185,40 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         
     def belt_start(self):
         ''' call to start the belt at the set speed '''
-        pass
+        self.tc.send('belt_start', self.slider_belt_speed.value())
+        self.belt_en = True
     
     def belt_stop(self):
         '''  call to stop the belt '''
-        pass
-    
+        self.tc.send('belt_stop')
+        self.belt_en = False
+        
     def belt_setspeed(self):
         ''' call when the belt speed has changed '''
+        if self.belt_en:
+            self.belt_start()
+            
+        self.lcd_belt_speed.display(self.slider_belt_speed.value())
         
     def bucket_lower(self):
         ''' call to lower the bucket '''
-        pass
+        self.tc.send('bucket_lower',100)
         
     def bucket_raise(self):
         ''' call to raise the bucket '''
+        self.tc.send('bucket_raise',100)
         pass
     
     def bucket_stop(self):
         ''' call if the bucket needs to be stopped '''
-        pass
+        self.panic()
+    
+    def panic(self):
+        '''  call to stop all functions '''
+        self.tc.send('full_stop')
+        self.belt_en = False
+        self.slider_speed_left.setValue(0)
+        self.slider_speed_right.setValue(0)
         
         
 app = QtGui.QApplication(sys.argv)

@@ -134,7 +134,6 @@ class _Connection(object):
             sys.stderr.write(">>> Protocol Error: operation needs data\n")
             return False
 
-        Lock.acquire()
         try:
             #write Opcode
             self.tn.write(protocol_out[operation])
@@ -153,7 +152,6 @@ class _Connection(object):
             self.tn.write(protocol_out['serial_sync'])
             
             return False
-        Lock.release()
         
         #operation successfully sent
         time.sleep(.01)
