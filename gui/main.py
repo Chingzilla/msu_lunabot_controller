@@ -44,7 +44,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.connect(self.button_move_backward, QtCore.SIGNAL('clicked()'), self.incBackward)
         
         # Emit Slider Value Change
-        self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+        #self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         self.connect(self.slider_speed_right, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         
         # Connect Belt UI
@@ -52,6 +52,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         
         self.connect(self.button_belt_start, QtCore.SIGNAL('clicked()'), self.belt_start)
         self.connect(self.button_belt_stop, QtCore.SIGNAL('clicked()'), self.belt_stop)
+        self.connect(self.button_belt_lower, QtCore.SIGNAL('clicked()'), self.belt_lower)
+        self.connect(self.button_belt_raise, QtCore.SIGNAL('clicked()'), self.belt_raise)
         
         # Connect Bucket UI
         self.connect(self.button_bucket_up, QtCore.SIGNAL('clicked()'), self.bucket_raise)
@@ -61,6 +63,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         # Connect the Panic Button
         self.connect(self.button_panic, QtCore.SIGNAL('clicked()'), self.panic)
         
+        
+        # Connect State Radio Buttons
+        self.connect(self.radio_state_move, QtCore.SIGNAL('toggled()'), self.stateMove)
+        
         ### Connect Joystick
         self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
     
@@ -69,17 +75,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.lcd_speed_right.display(self.slider_speed_right.value())
         self.lcd_speed_left.display(self.slider_speed_left.value())
         
+        if self.slider_speed_left.value() < 0:  
+            self.tc.send('left_backward', abs(self.slider_speed_left.value()))
+        else:
+            self.tc.send('left_forward', self.slider_speed_left.value()) 
+                     
         if self.slider_speed_right.value() < 0:
             self.tc.send('right_backward', abs(self.slider_speed_right.value()))
         else:
             self.tc.send('right_forward', self.slider_speed_right.value())
-
-        if self.slider_speed_left.value() < 0:  
-            self.tc.send('left_backward', abs(self.slider_speed_left.value()))
-        else:
-            self.tc.send('left_forward', self.slider_speed_left.value())                                   
         
-        print self.slider_speed_left.value(), "\t", self.slider_speed_right.value()
         self.emit(QtCore.SIGNAL('motorSpeedChanged()'))
 
     def stopMotors(self):
@@ -120,11 +125,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             
         self.slider_speed_left.triggerAction(2)
         self.slider_speed_right.triggerAction(2)  
-            
-    def incLeftMotorSpeed(self):
-        ''' Increase the left motor speed '''
-        print self.slider_speed_left.value()
-        self.slider_speed_left.sl
         
     def keyPressEvent(self, event):
         ''' keyboard short cuts are handled here '''
@@ -200,18 +200,25 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             
         self.lcd_belt_speed.display(self.slider_belt_speed.value())
         
+    def belt_lower(self):
+        ''' call to lower the digger '''
+        self.tc.send('belt_lower', self.spinbox_belt_raise_speed.value())
+        
+    def belt_raise(self):
+        ''' call to raise the digger '''
+        self.tc.send('belt_raise', self.spinbox_belt_raise_speed.value())
+        
     def bucket_lower(self):
         ''' call to lower the bucket '''
-        self.tc.send('bucket_lower',100)
+        self.tc.send('bucket_lower', self.spinbox_bucket_speed.value())
         
     def bucket_raise(self):
         ''' call to raise the bucket '''
-        self.tc.send('bucket_raise',100)
-        pass
+        self.tc.send('bucket_raise', self.spinbox_bucket_speed.value())
     
     def bucket_stop(self):
         ''' call if the bucket needs to be stopped '''
-        self.panic()
+        self.tc.send('bucket_lower', 0)
     
     def panic(self):
         '''  call to stop all functions '''
@@ -220,6 +227,18 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.slider_speed_left.setValue(0)
         self.slider_speed_right.setValue(0)
         
+    def stateMove(self):
+        '''
+        changes the operating state to Move
+        - disables the bucket controlls
+        - disables and rasise the belt
+        '''
+        if self.radio_state_move.isChecked():
+            # stop all fuctions
+            self.panic()
+            self.belt_raise()
+            self.group_bucket.setChecked(False)
+            self.group_belt.setChecked(False)
         
 app = QtGui.QApplication(sys.argv)
 
