@@ -158,7 +158,7 @@ class _Connection(object):
             return False
         
         #operation successfully sent
-        time.sleep(.01)
+        time.sleep(.05)
         return True
             
     def getData(self):

@@ -18,7 +18,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.belt_en = False
         
         ### Setup Telnet
-        self.tc = Connection_Manager.getInstance('digital-watch',2001)
+        self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
@@ -32,6 +32,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.joy0 = pygame.joystick.Joystick(0)
             self.joy0.init()
             self.joystick_en = True
+            self.check_joystick_enable.setChecked(True)
         
         ### Connect Movement
         # Connect Stop button
@@ -68,7 +69,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.connect(self.radio_state_move, QtCore.SIGNAL('toggled()'), self.stateMove)
         
         ### Connect Joystick
-        self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
+        #self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
     
     def motorSpeedChange(self):
       
@@ -164,7 +165,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     elif event.axis == 3 and temp_right != value:
                         temp_right = value
                         self.slider_speed_right.setValue(value)
-            pygame.time.get_ticks(60)
+            pygame.time.get_ticks(30)
+            pygame.event.pump()
                                             
     def joyScale(self,value):
         if abs(value) < .20:
