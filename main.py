@@ -18,7 +18,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.belt_en = False
         
         ### Setup Telnet
-        self.tc = Connection_Manager.getInstance('localhost',2001)
+        self.tc = Connection_Manager.getInstance('192.168.0.40',2001)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)

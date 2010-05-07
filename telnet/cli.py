@@ -15,7 +15,7 @@ class main():
     Simple cli for telnet connection
     '''
     
-    host = 'digital-watch'
+    host = '192.168.0.49'
     host_port = 2001
   
     tc = Connection_Manager.getInstance(host,host_port)
