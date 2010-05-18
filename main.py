@@ -67,10 +67,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         # Connect the Panic Button
         self.connect(self.button_panic, QtCore.SIGNAL('clicked()'), self.panic)
         
-        
-        # Connect State Radio Buttons
-        self.connect(self.radio_state_move, QtCore.SIGNAL('toggled()'), self.stateMove)
-        
         ### Connect Joystick
         #self.connect(self.check_joystick_enable, QtCore.SIGNAL('stateChanged(int)'), self.toggleJoystickState)
     
@@ -158,6 +154,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         ''' scan's the gamepad for movements '''
         temp_left = 300
         temp_right = 300
+        temp_trigger_digger = 300
         while self.joystick_en:
             for event in pygame.event.get():
                 if event.type == pygame.JOYAXISMOTION:
@@ -166,14 +163,50 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                         temp_left = value
                     elif event.axis == 4:
                         temp_right = value
+                    elif event.axis == 5:
+                        value = self.triggerScale(event.value)
+                        temp_trigger_digger = value
+                    
                 elif event.type == pygame.JOYBUTTONDOWN:
-                    pass
+                    if event.button == 7:
+                        self.panic()
+                    elif event.button == 0:
+                        self.bucket_lower()
+                    elif event.button == 3:
+                        self.bucket_raise()
+                    elif event.button == 14:
+                        pass
+                        toggle_state = not self.group_belt.isChecked()
+                        self.group_belt.setEnabled(toggle_state)
+                        self.group_belt.setChecked(toggle_state)
+                    elif event.button == 6:
+                        pass
+                        toggle_state = self.group_bucket.isChecked()
+                        self.group_bucket.setEnabled(not toggle_state)
+                    elif event.button == 11:
+                        self.belt_lower()
+                    elif event.button == 10:
+                        self.belt_raise()
+                elif event.type == pygame.JOYBUTTONUP:
+                    if event.button == 0:
+                        self.bucket_stop()
+                    elif event.button == 3:
+                        self.bucket_stop()
+                    elif event.button == 11:
+                        self.belt_stop_raise()
+                    elif event.button == 10:
+                        self.belt_stop_raise()
+                    
             if temp_left != 300:
                 self.slider_speed_left.setValue(value)
                 temp_left = 300
             if temp_right != 300:
                 self.slider_speed_right.setValue(value)
                 temp_right = 300
+            if temp_trigger_digger != 300:
+                self.slider_belt_speed.setValue(value)
+                self.button_belt_start.click()
+                temp_trigger_digger = 300
                 
             pygame.time.Clock().tick(60)
             pygame.event.pump()
@@ -184,6 +217,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             value = int(value * 255)
         return value
+    
+    def triggerScale(self,value):
+        value += 1
+        value = int(value*127)
+        return value    
     
     def toggleJoystickState(self):
         ''' call to enable or disable the joystick '''
@@ -236,19 +274,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.tc.send('full_stop')
         self.slider_speed_left.setValue(0)
         self.slider_speed_right.setValue(0)
-        
-    def stateMove(self):
-        '''
-        changes the operating state to Move
-        - disables the bucket controlls
-        - disables and rasise the belt
-        '''
-        if self.radio_state_move.isChecked():
-            # stop all fuctions
-            self.panic()
-            self.belt_raise()
-            self.group_bucket.setChecked(False)
-            self.group_belt.setChecked(False)
         
 app = QtGui.QApplication(sys.argv)
 
