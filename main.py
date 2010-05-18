@@ -6,6 +6,7 @@ Created on Apr 4, 2010
 from PyQt4 import QtGui, QtCore
 from gui.main_ui import Ui_MainWindow
 from telnet.Telnet_Connection import Connection_Manager
+from Telnet_Connection import FakeConnection
 import pygame
 import sys
 import threading
@@ -18,12 +19,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.belt_en = False
         
         ### Setup Telnet
-        self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
+        #self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
+        self.tc = FakeConnection('0.0.0.0',100)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
         self.joystickThread.setDaemon(1)
-        self.joystickThread.start()
         
         pygame.init()
         self.joystick_en = False
@@ -33,6 +34,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.joy0.init()
             self.joystick_en = True
             self.check_joystick_enable.setChecked(True)
+            self.joystickThread.start()
         
         ### Connect Movement
         # Connect Stop button
@@ -45,7 +47,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.connect(self.button_move_backward, QtCore.SIGNAL('clicked()'), self.incBackward)
         
         # Emit Slider Value Change
-        #self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
+        self.connect(self.slider_speed_left, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         self.connect(self.slider_speed_right, QtCore.SIGNAL('valueChanged(int)'), self.motorSpeedChange)
         
         # Connect Belt UI
@@ -153,19 +155,24 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             event.ignore()
     def joyUpdate(self):
         ''' scan's the gamepad for movements '''
-        temp_left = 0
-        temp_right = 0
+        temp_left = 300
+        temp_right = 300
         while self.joystick_en:
             for event in pygame.event.get():
                 if event.type == pygame.JOYAXISMOTION:
-                    value = self.joyScale(event.value)
-                    if event.axis == 1 and temp_left != value:
+                    value = -self.joyScale(event.value)
+                    if event.axis == 1:
                         temp_left = value
-                        self.slider_speed_left.setValue(value)
-                    elif event.axis == 3 and temp_right != value:
+                    elif event.axis == 4:
                         temp_right = value
-                        self.slider_speed_right.setValue(value)
-            pygame.time.get_ticks(30)
+            if temp_left != 300:
+                self.slider_speed_left.setValue(value)
+                temp_left = 300
+            if temp_right != 300:
+                self.slider_speed_right.setValue(value)
+                temp_right = 300
+                
+            pygame.time.Clock().tick(60)
             pygame.event.pump()
                                             
     def joyScale(self,value):
