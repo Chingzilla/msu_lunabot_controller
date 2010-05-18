@@ -168,4 +168,34 @@ class _Connection(object):
         '''
         pass
     
+class FakeConnection(_Connection):
+    def __init__(self,host,port):
+        self.host = host
+        self.port = port
+        pass
+    
+    def disconnect(self):
+        if self.connected:
+            print "Disconnected From Host"
+            self.connected = 0
+        else:
+            print "Already disconnected"
+            
+    def connect(self):
+        self.connected = 1
+        print "Connecting to ", self.host, ":",self.port
+    
+    def send(self, operation, data = None):
+        #Check if valid
+        if(not protocol_out.has_key(operation)):
+            sys.stderr.write(">>> Protocol Error: operation not valid\n")
+            return False
+        
+        #Check if needs opcode needs operand
+        if(operation in protocol_hasOperand and data == None):
+            sys.stderr.write(">>> Protocol Error: operation needs data\n")
+            return False
+        print "Sending: ",operation," ",data
+        
+        
 Connection_Manager = _Connection_Manager()
