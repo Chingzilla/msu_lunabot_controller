@@ -4,7 +4,7 @@ Created on Apr 4, 2010
 @author: ching
 '''
 from PyQt4 import QtGui, QtCore
-from gui.main_ui import Ui_MainWindow
+from main_ui import Ui_MainWindow
 from telnet.Telnet_Connection import Connection_Manager
 from Telnet_Connection import FakeConnection
 import pygame
@@ -15,8 +15,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self,parent)  
         self.setupUi(self)
-        
-        self.belt_en = False
         
         ### Setup Telnet
         #self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
@@ -55,13 +53,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         
         self.connect(self.button_belt_start, QtCore.SIGNAL('clicked()'), self.belt_start)
         self.connect(self.button_belt_stop, QtCore.SIGNAL('clicked()'), self.belt_stop)
-        self.connect(self.button_belt_lower, QtCore.SIGNAL('clicked()'), self.belt_lower)
-        self.connect(self.button_belt_raise, QtCore.SIGNAL('clicked()'), self.belt_raise)
+        self.connect(self.button_belt_lower, QtCore.SIGNAL('pressed()'), self.belt_lower)
+        self.connect(self.button_belt_raise, QtCore.SIGNAL('pressed()'), self.belt_raise)
+        self.connect(self.button_belt_lower, QtCore.SIGNAL('released()'), self.belt_stop_raise)
+        self.connect(self.button_belt_raise, QtCore.SIGNAL('released()'), self.belt_stop_raise)
         
         # Connect Bucket UI
-        self.connect(self.button_bucket_up, QtCore.SIGNAL('clicked()'), self.bucket_raise)
-        self.connect(self.button_bucket_down, QtCore.SIGNAL('clicked()'), self.bucket_lower)
-        self.connect(self.button_bucket_stop, QtCore.SIGNAL('clicked()'), self.bucket_stop)
+        self.connect(self.button_bucket_up, QtCore.SIGNAL('pressed()'), self.bucket_raise)
+        self.connect(self.button_bucket_down, QtCore.SIGNAL('pressed()'), self.bucket_lower)
+        self.connect(self.button_bucket_up, QtCore.SIGNAL('released()'), self.bucket_stop)
+        self.connect(self.button_bucket_down, QtCore.SIGNAL('released()'), self.bucket_stop)
         
         # Connect the Panic Button
         self.connect(self.button_panic, QtCore.SIGNAL('clicked()'), self.panic)
@@ -165,6 +166,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                         temp_left = value
                     elif event.axis == 4:
                         temp_right = value
+                elif event.type == pygame.JOYBUTTONDOWN:
+                    pass
             if temp_left != 300:
                 self.slider_speed_left.setValue(value)
                 temp_left = 300
@@ -195,18 +198,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def belt_start(self):
         ''' call to start the belt at the set speed '''
         self.tc.send('belt_start', self.slider_belt_speed.value())
-        self.belt_en = True
     
     def belt_stop(self):
         '''  call to stop the belt '''
         self.tc.send('belt_stop')
-        self.belt_en = False
         
     def belt_setspeed(self):
-        ''' call when the belt speed has changed '''
-        if self.belt_en:
-            self.belt_start()
-            
+        ''' call when the belt speed has changed '''  
         self.lcd_belt_speed.display(self.slider_belt_speed.value())
         
     def belt_lower(self):
@@ -216,6 +214,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def belt_raise(self):
         ''' call to raise the digger '''
         self.tc.send('belt_raise', self.spinbox_belt_raise_speed.value())
+    
+    def belt_stop_raise(self):
+        ''' call to stop raising/lowering the belt '''
+        self.tc.send('belt_raise', 0)
         
     def bucket_lower(self):
         ''' call to lower the bucket '''
@@ -232,7 +234,6 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def panic(self):
         '''  call to stop all functions '''
         self.tc.send('full_stop')
-        self.belt_en = False
         self.slider_speed_left.setValue(0)
         self.slider_speed_right.setValue(0)
         
