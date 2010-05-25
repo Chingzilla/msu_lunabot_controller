@@ -247,11 +247,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         
     def belt_lower(self):
         ''' call to lower the digger '''
-        self.tc.send('belt_lower', self.spinbox_belt_raise_speed.value())
+        self.tc.send('belt_lower')
         
     def belt_raise(self):
         ''' call to raise the digger '''
-        self.tc.send('belt_raise', self.spinbox_belt_raise_speed.value())
+        self.tc.send('belt_raise')
     
     def belt_stop_raise(self):
         ''' call to stop raising/lowering the belt '''
