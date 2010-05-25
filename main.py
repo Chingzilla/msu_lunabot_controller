@@ -4,9 +4,9 @@ Created on Apr 4, 2010
 @author: ching
 '''
 from PyQt4 import QtGui, QtCore
-from main_ui import Ui_MainWindow
+from gui.main_ui import Ui_MainWindow
 from telnet.Telnet_Connection import Connection_Manager
-from Telnet_Connection import FakeConnection
+from telnet.Telnet_Connection import FakeConnection
 import pygame
 import sys
 import threading
@@ -17,8 +17,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
         ### Setup Telnet
-        self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
-        #self.tc = FakeConnection('0.0.0.0',100)
+        #self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
+        self.tc = FakeConnection('0.0.0.0',100)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
