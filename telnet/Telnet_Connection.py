@@ -15,12 +15,12 @@ protocol_out = { 'move_forward'   : 'e',
                  'left_backward'  : 'b',
                  'right_forward'  : 'c',
                  'right_backward' : 'd',
-                 'bucket_raise'   : 'g',
-                 'bucket_lower'   : 'h',
+                 'bucket_raise'   : 'i',
+                 'bucket_lower'   : 'j',
                  'belt_start'     : 'm',
                  'belt_stop'      : 't',
-                 'belt_lower'     : 'i',
-                 'belt_raise'     : 'j',
+                 'belt_lower'     : 'g',
+                 'belt_raise'     : 'h',
                  'full_stop'      : 'l',
                  'stop_wheels'    : 'k',
                  'serial_sync'    : '!'
@@ -37,8 +37,6 @@ protocol_hasOperand = [  'move_forward',
                          'bucket_raise',
                          'bucket_lower', 
                          'belt_start',
-                         'belt_raise',
-                         'belt_lower'
                          ]
 
 
