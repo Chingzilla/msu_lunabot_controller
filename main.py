@@ -256,6 +256,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def belt_stop_raise(self):
         ''' call to stop raising/lowering the belt '''
         self.tc.send('full_stop')
+	self.belt_start()
         
     def bucket_lower(self):
         ''' call to lower the bucket '''
