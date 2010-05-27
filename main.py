@@ -17,8 +17,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
         ### Setup Telnet
-        #self.tc = Connection_Manager.getInstance('192.168.0.49',2001)
-        self.tc = FakeConnection('0.0.0.0',100)
+        self.tc = Connection_Manager.getInstance('the_mule',2001)
+        #self.tc = FakeConnection('0.0.0.0',100)
         
         ### Setup Joystick
         self.joystickThread = threading.Thread(target = self.joyUpdate)
@@ -255,7 +255,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     
     def belt_stop_raise(self):
         ''' call to stop raising/lowering the belt '''
-        self.tc.send('belt_raise', 0)
+        self.tc.send('full_stop')
         
     def bucket_lower(self):
         ''' call to lower the bucket '''
