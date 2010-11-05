@@ -1,0 +1,28 @@
+Lunabot Controller:
+
+This is the controller software developed for the Montana M.U.L.E. project.
+This project was a capstone project for a multi disipline team consisting of
+3 electrical engineers, 4 mechanical engineers/tech and 1 computer science/engineer
+majors.
+
+Info on the compition can be found at:
+http://www.nasa.gov/offices/education/centers/kennedy/technology/lunabotics.html
+
+The Montana M.U.L.E. won this national robotic event May 28, 2010
+
+To run this software you need the following dependencies:
+* python
+* pyGame
+* pyQT
+
+On the server you need a running instance of:
+* ser2net
+
+Improvements needed:
+* Improve network layer to fixed broken pipe errors
+* Improve GUI so that timer funtion works and stdout is displayed in text feild
+* Add menus so that IP addresses and Ports don't need to be hard codded
+
+Please keep in mind that I wrote this to only be used by me to control the robot,
+therefor the interface is not the most intuitive. This was also created durring an
+extremely busy semester where I was takeing 19 credits.
